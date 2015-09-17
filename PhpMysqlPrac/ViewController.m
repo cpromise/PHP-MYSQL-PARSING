@@ -8,20 +8,37 @@
 
 #import "ViewController.h"
 
-@interface ViewController ()
+@interface ViewController () <UITableViewDelegate, UITableViewDataSource>
 
 @end
 
-@implementation ViewController
+@implementation ViewController{
+    //JSON 파싱해서 담아줄 배열
+    NSArray *list;
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
+    list = [[NSArray alloc] initWithObjects:@"1st Cell",@"2nd Cell",@"3rd Cell", nil];
+    self.tableView.delegate = self;
+    self.tableView.dataSource = self;
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return [list count];
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"sampleCell"];
+    cell.textLabel.text = [list objectAtIndex:indexPath.row];
+    return cell;
+}
+
 
 @end
