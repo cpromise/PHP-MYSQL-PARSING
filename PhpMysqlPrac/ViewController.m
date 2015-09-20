@@ -14,13 +14,15 @@
 
 @implementation ViewController{
     //JSON 파싱해서 담아줄 배열
-    NSArray *list;
+    NSMutableArray *list;
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
-    list = [[NSArray alloc] initWithObjects:@"1st Cell",@"2nd Cell",@"3rd Cell", nil];
+    //가장 먼저 데이터를 셋팅
+    [self getData];
+    
+    //델리게이트는 셀프로
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
 }
@@ -36,9 +38,29 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"sampleCell"];
-    cell.textLabel.text = [list objectAtIndex:indexPath.row];
+    cell.textLabel.text = [[list objectAtIndex:indexPath.row] objectForKey:@"name"];
     return cell;
 }
 
+- (void)getData{
+    NSString *url = @"http://cpromise.cafe24.com/lunch/getRestList.php";
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL: [NSURL URLWithString:url]
+                                                           cachePolicy: NSURLRequestReloadIgnoringCacheData
+                                                       timeoutInterval:60];
+    [request setHTTPMethod:@"GET"];
+    [NSURLConnection connectionWithRequest:request delegate:self];
+}
 
+- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data{
+    NSString *strReturn = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    NSLog(@"%@",strReturn);
+    NSError *error = nil;
+    id tmp = [NSJSONSerialization JSONObjectWithData:[strReturn dataUsingEncoding:NSUTF8StringEncoding]
+                                             options:NSJSONReadingMutableContainers
+                                               error:&error];
+    list = [[NSMutableArray alloc] initWithArray: (NSMutableArray *)tmp];
+    
+    //데이터를 다 받았으면 테이블에 값들을 새로고침 해줘야합니다.
+    [_tableView reloadData];
+}
 @end
